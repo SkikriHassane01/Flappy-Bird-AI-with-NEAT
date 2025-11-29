@@ -107,7 +107,7 @@ class Pipe:
         self.bottom = self.heigh + cfg.GAP
 
     def move(self):
-        self.x -= asset.VEL
+        self.x -= cfg.VEL
 
     def draw(self, win):
         win.blit(self.PIPE_TOP, (self.x, self.top)) 
@@ -130,7 +130,7 @@ class Pipe:
         return False
 
 class Base:
-    VEL = asset.VEL
+    VEL = cfg.VEL
     WIDTH = asset.BASE_IMG.get_width()
     IMG = asset.BASE_IMG
 
@@ -154,26 +154,58 @@ class Base:
         win.blit(self.IMG, (self.x1, self.y))
         win.blit(self.IMG, (self.x2, self.y))
 
-def draw_window(win, bird):
+def draw_window(win, bird, pipes, base):
     win.blit(asset.BG_IMG, (0,0))
+    for pipe in pipes:
+        pipe.draw(win)
+    base.draw(win)
     bird.draw(win)
     pygame.display.update()
 
 def main():
-    bird = Bird(100,150)
+    bird = Bird(230,350)
+    base = Base(550)
+    pipes = [Pipe(600)]
+
     win = pygame.display.set_mode((cfg.WIN_WIDTH, cfg.WIN_HEIGHT))
-    pygame.display.set_caption("Flappy Bird")
     clock = pygame.time.Clock()
+
     run = True
     while run:
-        clock.tick(30) # 30 FPS
+        clock.tick(cfg.FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-        bird.move()
-        draw_window(win, bird)
+
+        # bird.move()
+        add_pipe = False
+        rem = []
+        for pipe in pipes:
+            pipe.move()
+            # check for collision
+            if pipe.collide(bird):
+                pass # handle collision
+
+            if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                rem.append(pipe)
+
+            if not pipe.passed and pipe.x < bird.x:
+                pipe.passed = True
+                add_pipe = True
+
+        if add_pipe:
+            pipes.append(Pipe(550))
+
+        for r in rem:
+            pipes.remove(r)
+
+        if bird.y + bird.img.get_height() >= 550 or bird.y < 0:
+            pass # handle ground or ceiling collision
+
+        base.move()
+        draw_window(win, bird, pipes, base)
+
     pygame.quit()
-    quit()
 
 if __name__ == "__main__":
     main()
