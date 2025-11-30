@@ -2,6 +2,7 @@
 from utils import settings as cfg
 from utils import assets as asset
 import pygame
+pygame.font.init()
 import neat # NEAT algorithm for AI training
 import time
 import os
@@ -154,10 +155,14 @@ class Base:
         win.blit(self.IMG, (self.x1, self.y))
         win.blit(self.IMG, (self.x2, self.y))
 
-def draw_window(win, bird, pipes, base):
+def draw_window(win, bird, pipes, base, score):
     win.blit(asset.BG_IMG, (0,0))
     for pipe in pipes:
         pipe.draw(win)
+
+    text = cfg.STATE_FONT.render('score: ' + str(score),1,(255,255,255))
+    win.blit(text, (cfg.WIN_WIDTH - 10 - text.get_width(), 10))
+
     base.draw(win)
     bird.draw(win)
     pygame.display.update()
@@ -170,6 +175,7 @@ def main():
     win = pygame.display.set_mode((cfg.WIN_WIDTH, cfg.WIN_HEIGHT))
     clock = pygame.time.Clock()
 
+    score = 0
     run = True
     while run:
         clock.tick(cfg.FPS)
@@ -194,6 +200,7 @@ def main():
                 add_pipe = True
 
         if add_pipe:
+            score += 1
             pipes.append(Pipe(550))
 
         for r in rem:
@@ -203,7 +210,7 @@ def main():
             pass # handle ground or ceiling collision
 
         base.move()
-        draw_window(win, bird, pipes, base)
+        draw_window(win, bird, pipes, base, score)
 
     pygame.quit()
 

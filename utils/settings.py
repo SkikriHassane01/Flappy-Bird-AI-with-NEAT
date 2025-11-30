@@ -1,6 +1,7 @@
 """
 Managing game settings and constants.
 """
+from pygame import font
 # Window settings
 WIN_HEIGHT = 600
 WIN_WIDTH = 400
@@ -14,3 +15,5 @@ ANIMATION_TIME = 5 # Change from image to image after each 5 frame
 # Pipe settings
 GAP = 200 # the distance between top and button of the pipe (difficulty)
 VEL = 5  # how fast the pipe move to the left
+
+STATE_FONT  = font.SysFont('comicsans', 50)
