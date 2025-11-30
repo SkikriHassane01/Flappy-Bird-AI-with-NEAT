@@ -1,0 +1,119 @@
+# Mutation means randomly changing the bird's brain to see if it gets smarter
+# When a generation of birds dies, the code picks the best ones to be 'parents'.
+# It creates 'babies' (the next generation) based on the parents, but it mutsates (changes) them slightly.
+
+# - weight mutation (weight_mutate_rate): changing the strength of the connection between neurons.
+# - node mutation (node_add_prob): adding a new 'neuron' to the network.
+# - connection mutation (conn_add_prob): drawing new line between two existing neurons.
+
+# General Configuration
+[NEAT]
+fitness_criterion     = max
+# Stop training at 100 score
+fitness_threshold     = 100
+# 50 birds in each generation
+pop_size              = 50
+# If all birds die out, don't reset the entire simulation
+reset_on_extinction   = False
+
+# The Brain Settings - how it builds and mutates
+[DefaultGenome]
+
+# Node activation options
+# Keep values between -1 and 1
+activation_default      = tanh
+# Don't change the activation function "tanh"
+activation_mutate_rate  = 0.0
+# Only allowed "tanh"
+activation_options      = tanh
+
+# Node aggregation options - how inputs are combined
+# Neurons add up all their inputs
+aggregation_default     = sum
+aggregation_mutate_rate = 0.0
+aggregation_options     = sum
+
+# Bias is an extra number added to the calculation that lets the bird decide to jump even when the input signals are zero
+# Node bias options
+# New brains start with average bias of 0
+bias_init_mean          = 0.0
+bias_init_stdev         = 1.0
+bias_max_value          = 30.0
+bias_min_value          = -30.0
+# Change the bias about 0.5
+bias_mutate_power       = 0.5
+# 70% chance the bias will change
+bias_mutate_rate        = 0.7
+bias_replace_rate       = 0.1
+
+# Genome compatibility options - how different brains are compared
+# Help decide if two birds belong to the same "species"
+compatibility_disjoint_coefficient = 1.0
+compatibility_weight_coefficient   = 0.5
+
+# Connection add/remove rates
+# 50% chance to add a new connection between two neurons
+conn_add_prob           = 0.5
+conn_delete_prob        = 0.5
+
+# Connection enable options
+# New connections start as "active"
+enabled_default         = True
+# 1% chance a connection gets turned on or off
+enabled_mutate_rate     = 0.01
+
+# Input => Output
+feed_forward            = True
+# Every input starts connected to every output
+initial_connection      = full
+
+# Node add/remove rates
+# 20% chance to add a new neuron
+node_add_prob           = 0.2
+node_delete_prob        = 0.2
+
+# Network parameters
+# Start with 0 hidden neurons (simple brain)
+num_hidden              = 0
+# 3 inputs (bird y position, distance to top pipe, distance to bottom pipe)
+num_inputs              = 3
+# The bird does 1 thing: Jump / No Jump
+num_outputs             = 1
+
+# Node response options - how sensitive neurons are
+response_init_mean      = 1.0
+response_init_stdev     = 0.0
+response_max_value      = 30.0
+response_min_value      = -30.0
+response_mutate_power   = 0.0
+response_mutate_rate    = 0.0
+response_replace_rate   = 0.0
+
+# Connection weight options - strength of connections
+# Starting weights
+weight_init_mean        = 0.0
+weight_init_stdev       = 1.0
+weight_max_value        = 30
+weight_min_value        = -30
+weight_mutate_power     = 0.5
+# 80% chance the weight will change
+weight_mutate_rate      = 0.8
+weight_replace_rate     = 0.1
+
+[DefaultSpeciesSet]
+# If two birds are different enough (score > 3) they are put in different species groups
+compatibility_threshold = 3.0
+
+[DefaultStagnation]
+# Handling stuck progress
+# A species is judged by its best bird
+species_fitness_func = max
+# If species doesn't improve for 20 generations, kill it off to make room for new ones.
+max_stagnation       = 20
+species_elitism      = 2
+
+[DefaultReproduction]
+# The best 2 birds from each species are copied exactly (don't mutate)
+elitism            = 2
+# 20% of birds in a species get to reproduce
+survival_threshold = 0
