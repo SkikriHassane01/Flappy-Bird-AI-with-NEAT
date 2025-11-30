@@ -16,4 +16,5 @@ ANIMATION_TIME = 5 # Change from image to image after each 5 frame
 GAP = 200 # the distance between top and button of the pipe (difficulty)
 VEL = 5  # how fast the pipe move to the left
 
+font.init()
 STATE_FONT  = font.SysFont('comicsans', 50)
