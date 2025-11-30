@@ -6,8 +6,11 @@ from utils import assets as asset
 from objects.bird import Bird
 from objects.pipe import Pipe
 from objects.base import Base
+import pickle
 
 GEN = 0
+WINNER_GENOME = None
+
 def eval_genomes(genomes, config):
     """
     - genome: is the bird's DNA, it determines => nodes and weights, and the connections
@@ -23,7 +26,7 @@ def eval_genomes(genomes, config):
         - bird hits pipe? ==> -1 and remove it
     - when all birds are dead, function ends. neat looks at the fitness scores, kills the bad birds, breeds the good ones, and calls eval_genomes for next gen
     """
-    global GEN
+    global GEN, WINNER_GENOME
     GEN += 1
     
     # 1. create lists to hold the neural networks(nets), genomes(ge), and birds
@@ -99,6 +102,13 @@ def eval_genomes(genomes, config):
                  g.fitness += 5  # passed pipe +5 fitness
             pipes.append(Pipe(600))
         
+            # Stop when score reaches 30
+            if score >= 30:
+                print(f"Score of 30 reached! Stopping training.")
+                WINNER_GENOME = max(ge, key=lambda g: g.fitness)
+                run = False
+                break
+        
         for r in rem:
             pipes.remove(r)
         
@@ -111,6 +121,8 @@ def eval_genomes(genomes, config):
 
         # 7. draw everything
         draw_window(win, birds, pipes, base, score, GEN)
+    if WINNER_GENOME is not None:
+        raise StopIteration
 
 def draw_window(win, birds, pipes, base, score, gen):
     win.blit(asset.BG_IMG, (0, 0))
@@ -129,6 +141,7 @@ def draw_window(win, birds, pipes, base, score, gen):
     pygame.display.update()
 
 def run(config_path):
+    global WINNER_GENOME
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
 
     p = neat.Population(config)
@@ -136,8 +149,19 @@ def run(config_path):
     p.add_reporter(stats)
 
     # run for 50 generations
-    winner = p.run(eval_genomes, 50)
-    # eval_genomes: where the bird learn, if it did good job or a bad job.
+    try:
+        winner = p.run(eval_genomes, 50)
+    except StopIteration:
+        winner = WINNER_GENOME
+        print("Training stopped early - goal reached!")
+    
+    # Save the best bird
+    if winner:
+        with open("best_bird.pkl", "wb") as f:
+            pickle.dump((winner, config), f)
+        print("Best bird saved to best_bird.pkl")
+    
+    return winner
 
 if __name__ == "__main__":
     local_dir = os.path.dirname(__file__)
